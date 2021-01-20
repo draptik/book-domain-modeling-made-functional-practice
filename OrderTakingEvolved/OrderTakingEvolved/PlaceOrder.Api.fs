@@ -74,8 +74,8 @@ let getPromotionPrices (PromotionCode promotionCode) :TryGetProductPrice =
     | "QUARTER" -> quarterPricePromotion
     | _ -> noPromotion 
 
-let getPricingFunction :GetPricingFunction = 
-    PricingModule.getPricingFunction getStandardPrices  getPromotionPrices 
+let getPricingFunction : GetPricingFunction = 
+    PricingModule.getPricingFunction getStandardPrices getPromotionPrices 
   
 let calculateShippingCost = 
     Implementation.calculateShippingCost
