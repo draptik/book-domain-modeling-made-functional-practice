@@ -14,7 +14,7 @@ let createOrderFormDto : OrderFormDto =
         CustomerInfoDto.FirstName = "Homer"
         LastName = "Simpson"
         EmailAddress = "homer.simpson@aol.com"
-        VipStatus = "unknown"
+        VipStatus = "Normal"
     }
     
     let addressDto = {
@@ -24,13 +24,13 @@ let createOrderFormDto : OrderFormDto =
         AddressLine4 = ""
         City = "Springfield"
         ZipCode = "12345"
-        State = "Some State"
+        State = "NY"
         Country = "USA"
     }
     
     let orderFormLineDto = {
         OrderFormLineDto.OrderLineId = "1"
-        ProductCode = "abc"
+        ProductCode = "W1234"
         Quantity = 1m
     }
     
@@ -54,6 +54,7 @@ let toJson orderFormDto = JsonConvert.SerializeObject(orderFormDto)
 [<Fact>]
 let ``Happy case`` () =
 
+    // Arrange
     let body = createOrderFormDto |> toJson
 
     let request = {
@@ -64,9 +65,13 @@ let ``Happy case`` () =
     
     let (result: HttpResponse) =
         async {
+            // Act
             let! response = placeOrderApi request
             return response
         } |> Async.RunSynchronously
         
+    // Assert
+    let expectedReturnBody = "[{\"OrderAcknowledgmentSent\":{\"OrderId\":\"1\",\"EmailAddress\":\"homer.simpson@aol.com\"}},{\"ShippableOrderPlaced\":{\"OrderId\":\"1\",\"ShippingAddress\":{\"AddressLine1\":\"Evergreen Terrace 1\",\"AddressLine2\":null,\"AddressLine3\":null,\"AddressLine4\":null,\"City\":\"Springfield\",\"ZipCode\":\"12345\",\"State\":\"NY\",\"Country\":\"USA\"},\"ShipmentLines\":[{\"ProductCode\":\"W1234\",\"Quantity\":1.0}],\"Pdf\":{\"Name\":\"Order1.pdf\",\"Bytes\":\"\"}}},{\"BillableOrderPlaced\":{\"OrderId\":\"1\",\"BillingAddress\":{\"AddressLine1\":\"Evergreen Terrace 1\",\"AddressLine2\":null,\"AddressLine3\":null,\"AddressLine4\":null,\"City\":\"Springfield\",\"ZipCode\":\"12345\",\"State\":\"NY\",\"Country\":\"USA\"},\"AmountToBill\":10.0}}]"
+
     result.HttpStatusCode =! 200
-    result.Body =! "some body"
+    result.Body =! expectedReturnBody
